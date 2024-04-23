@@ -1,0 +1,52 @@
+﻿@page
+@using WebApp.DTOs
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>@Model.ErrorMessage !!!</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form class="row" asp-page-handler="Search" method="get">
+    <input value="Search" name="handler" hidden="hidden"/>
+    <div class="col">
+        <input class="form-control" placeholder="Enter Your Id Here" type="text" asp-for="Id"/>
+        <span asp-validation-for="Id" class="text-danger"></span>
+    </div>
+    <div class="col">
+        <button type="submit" class="btn btn-primary mb-3">Search</button>
+    </div>
+</form>
+
+@if (Model.Response is not null)
+{
+    <div>
+        <div class="row row-cols-4 row-cols-md-3 row-cols-md-1">
+            @foreach (Photo photo in Model.Response.Photos.Photo)
+            {
+                <div class="col">
+                    <img src="@($"https://live.staticflickr.com/{photo.Server}/{photo.Id}_{photo.Secret}.jpg")" alt="" class="img-thumbnail" style="height: 300px;"/>
+                </div>
+            }
+        </div>
+            @* Add Previous and Next *@
+        @{
+            string prevDisabled = Model.Response.Photos.Page == 1 ? "disabled" : "";
+            string nextDisabled = Model.Response.Photos.Page == Model.Response.Photos.Pages ? "disabled" : "";
+        }
+
+        <a asp-page-handler="Search" asp-route-pageNumber="@(Model.Response.Photos.Page - 1)"
+           class="btn btn-default @prevDisabled" asp-route-id="@Model.Id">
+            Previous
+        </a>
+        <a asp-page-handler="Search" asp-route-pageNumber="@(Model.Response.Photos.Page + 1)"
+           class="btn btn-default @nextDisabled" asp-route-id="@Model.Id">
+            Next
+        </a>
+    </div>
+}
